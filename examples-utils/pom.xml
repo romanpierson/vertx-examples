@@ -5,7 +5,7 @@
   <parent>
     <artifactId>vertx-examples</artifactId>
     <groupId>io.vertx</groupId>
-    <version>3.0.0</version>
+    <version>3.2.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -69,6 +69,20 @@
       </plugins>
     </pluginManagement>
   </build>
+
+
+  <repositories>
+    <repository>
+      <id>oss.snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+  </repositories>
 
 
 </project>

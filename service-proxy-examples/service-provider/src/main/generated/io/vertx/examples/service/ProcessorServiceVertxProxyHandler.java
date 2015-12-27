@@ -58,10 +58,10 @@ public class ProcessorServiceVertxProxyHandler extends ProxyHandler {
   private final long timeoutSeconds;
 
   public ProcessorServiceVertxProxyHandler(Vertx vertx, ProcessorService service) {
-    this(vertx, service, DEFAULT_CONNECTION_TIMEOUT);  }
+    this(vertx, service, DEFAULT_CONNECTION_TIMEOUT);
+  }
 
-  public ProcessorServiceVertxProxyHandler(Vertx vertx, ProcessorService service,
-    long timeoutInSecond) {
+  public ProcessorServiceVertxProxyHandler(Vertx vertx, ProcessorService service, long timeoutInSecond) {
     this(vertx, service, true, timeoutInSecond);
   }
 
@@ -107,33 +107,39 @@ public class ProcessorServiceVertxProxyHandler extends ProxyHandler {
   }
 
   public void handle(Message<JsonObject> msg) {
-    JsonObject json = msg.body();
-    String action = msg.headers().get("action");
-    if (action == null) {
-      throw new IllegalStateException("action not specified");
-    }
-    accessed();
-    switch (action) {
+    try {
+      JsonObject json = msg.body();
+      String action = msg.headers().get("action");
+      if (action == null) {
+        throw new IllegalStateException("action not specified");
+      }
+      accessed();
+      switch (action) {
 
 
-      case "process": {
-        service.process((io.vertx.core.json.JsonObject)json.getValue("document"), createHandler(msg));
-        break;
+        case "process": {
+          service.process((io.vertx.core.json.JsonObject)json.getValue("document"), createHandler(msg));
+          break;
+        }
+        default: {
+          throw new IllegalStateException("Invalid action: " + action);
+        }
       }
-      default: {
-        throw new IllegalStateException("Invalid action: " + action);
-      }
+    } catch (Throwable t) {
+      msg.fail(-1, t.getMessage());
+      throw t;
     }
   }
+
   private <T> Handler<AsyncResult<T>> createHandler(Message msg) {
     return res -> {
       if (res.failed()) {
         msg.fail(-1, res.cause().getMessage());
       } else {
-        msg.reply(res.result());
-      }
+        if (res.result() != null  && res.result().getClass().isEnum()) {          msg.reply(((Enum) res.result()).name());        } else {          msg.reply(res.result());        }      }
     };
   }
+
   private <T> Handler<AsyncResult<List<T>>> createListHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -143,6 +149,7 @@ public class ProcessorServiceVertxProxyHandler extends ProxyHandler {
       }
     };
   }
+
   private <T> Handler<AsyncResult<Set<T>>> createSetHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -152,6 +159,7 @@ public class ProcessorServiceVertxProxyHandler extends ProxyHandler {
       }
     };
   }
+
   private Handler<AsyncResult<List<Character>>> createListCharHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -159,12 +167,13 @@ public class ProcessorServiceVertxProxyHandler extends ProxyHandler {
       } else {
         JsonArray arr = new JsonArray();
         for (Character chr: res.result()) {
-          arr.add((int)chr);
+          arr.add((int) chr);
         }
         msg.reply(arr);
       }
     };
   }
+
   private Handler<AsyncResult<Set<Character>>> createSetCharHandler(Message msg) {
     return res -> {
       if (res.failed()) {
@@ -172,18 +181,21 @@ public class ProcessorServiceVertxProxyHandler extends ProxyHandler {
       } else {
         JsonArray arr = new JsonArray();
         for (Character chr: res.result()) {
-          arr.add((int)chr);
+          arr.add((int) chr);
         }
         msg.reply(arr);
       }
     };
   }
+
   private <T> Map<String, T> convertMap(Map map) {
     return (Map<String, T>)map;
   }
+
   private <T> List<T> convertList(List list) {
     return (List<T>)list;
   }
+
   private <T> Set<T> convertSet(List list) {
     return new HashSet<T>((List<T>)list);
   }

@@ -6,7 +6,7 @@
 
   <groupId>io.vertx</groupId>
   <artifactId>core-examples</artifactId>
-  <version>3.0.0</version>
+  <version>3.2.0</version>
 
   <dependencies>
 
@@ -20,6 +20,7 @@
       <groupId>io.vertx</groupId>
       <artifactId>examples-utils</artifactId>
       <version>${project.version}</version>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -47,8 +48,20 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
   </build>
+
+  <repositories>
+    <repository>
+      <id>oss.snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+  </repositories>
 
 
 </project>

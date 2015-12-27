@@ -1,6 +1,6 @@
-= Vert.x 3.0 Simplest Maven project
+= Vert.x Simplest Maven project
 
-This project shows a very simple hello world Vert.x 3.0 project using Maven, which has a simple HTTP server which
+This project shows a very simple hello world Vert.x project using Maven, which has a simple HTTP server which
 simply returns "Hello World!" to every request.
 
 In this example Vert.x is used embedded. I.e. we use the Vert.x APIs directly in our own classes rather than deploying
@@ -10,13 +10,17 @@ You can run or debug the example in your IDE by just right clicking the main cla
 
 The pom.xml uses the Maven shade plugin to assemble the application and all it's dependencies into a single "fat" jar.
 
+To run with maven
+
+    mvn compile exec:java
+    
 To build a "fat jar"
 
     mvn package
 
 To run the fat jar:
 
-    java -jar target/maven-simplest-3.0.0-fat.jar
+    java -jar target/maven-simplest-3.2.0-fat.jar
 
 (You can take that jar and run it anywhere there is a Java 8+ JDK. It contains all the dependencies it needs so you
 don't need to install Vert.x on the target machine).

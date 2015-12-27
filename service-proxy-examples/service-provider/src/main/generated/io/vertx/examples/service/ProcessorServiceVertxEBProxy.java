@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.function.Function;
 import io.vertx.serviceproxy.ProxyHelper;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -43,11 +44,17 @@ public class ProcessorServiceVertxEBProxy implements ProcessorService {
 
   private Vertx _vertx;
   private String _address;
+  private DeliveryOptions _options;
   private boolean closed;
 
   public ProcessorServiceVertxEBProxy(Vertx vertx, String address) {
+    this(vertx, address, null);
+  }
+
+  public ProcessorServiceVertxEBProxy(Vertx vertx, String address, DeliveryOptions options) {
     this._vertx = vertx;
     this._address = address;
+    this._options = options;
   }
 
   public void process(JsonObject document, Handler<AsyncResult<JsonObject>> resultHandler) {
@@ -57,7 +64,7 @@ public class ProcessorServiceVertxEBProxy implements ProcessorService {
     }
     JsonObject _json = new JsonObject();
     _json.put("document", document);
-    DeliveryOptions _deliveryOptions = new DeliveryOptions();
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
     _deliveryOptions.addHeader("action", "process");
     _vertx.eventBus().<JsonObject>send(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
@@ -73,7 +80,7 @@ public class ProcessorServiceVertxEBProxy implements ProcessorService {
     List<Character> list = new ArrayList<>();
     for (Object obj: arr) {
       Integer jobj = (Integer)obj;
-      list.add((char)jobj.intValue());
+      list.add((char)(int)jobj);
     }
     return list;
   }
@@ -82,18 +89,50 @@ public class ProcessorServiceVertxEBProxy implements ProcessorService {
     Set<Character> set = new HashSet<>();
     for (Object obj: arr) {
       Integer jobj = (Integer)obj;
-      set.add((char)jobj.intValue());
+      set.add((char)(int)jobj);
     }
     return set;
   }
 
   private <T> Map<String, T> convertMap(Map map) {
-    return (Map<String, T>)map;
+    if (map.isEmpty()) { 
+      return (Map<String, T>) map; 
+    } 
+     
+    Object elem = map.values().stream().findFirst().get(); 
+    if (!(elem instanceof Map) && !(elem instanceof List)) { 
+      return (Map<String, T>) map; 
+    } else { 
+      Function<Object, T> converter; 
+      if (elem instanceof List) { 
+        converter = object -> (T) new JsonArray((List) object); 
+      } else { 
+        converter = object -> (T) new JsonObject((Map) object); 
+      } 
+      return ((Map<String, T>) map).entrySet() 
+       .stream() 
+       .collect(Collectors.toMap(Map.Entry::getKey, converter::apply)); 
+    } 
   }
   private <T> List<T> convertList(List list) {
-    return (List<T>)list;
+    if (list.isEmpty()) { 
+          return (List<T>) list; 
+        } 
+     
+    Object elem = list.get(0); 
+    if (!(elem instanceof Map) && !(elem instanceof List)) { 
+      return (List<T>) list; 
+    } else { 
+      Function<Object, T> converter; 
+      if (elem instanceof List) { 
+        converter = object -> (T) new JsonArray((List) object); 
+      } else { 
+        converter = object -> (T) new JsonObject((Map) object); 
+      } 
+      return (List<T>) list.stream().map(converter).collect(Collectors.toList()); 
+    } 
   }
   private <T> Set<T> convertSet(List list) {
-    return new HashSet<T>((List<T>)list);
+    return new HashSet<T>(convertList(list));
   }
 }
