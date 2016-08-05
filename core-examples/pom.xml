@@ -6,7 +6,7 @@
 
   <groupId>io.vertx</groupId>
   <artifactId>core-examples</artifactId>
-  <version>3.2.0</version>
+  <version>3.3.2</version>
 
   <dependencies>
 
@@ -14,6 +14,12 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-tcnative-boringssl-static</artifactId>
+      <version>1.1.33.Fork17</version>
     </dependency>
 
     <dependency>
@@ -32,6 +38,7 @@
   </dependencies>
 
   <build>
+
     <pluginManagement>
       <plugins>
         <!-- We specify the Maven compiler plugin as we need to set it to Java 1.8 -->
@@ -43,6 +50,7 @@
             <target>1.8</target>
             <compilerArgs>
               <arg>-Acodetrans.output=${project.basedir}/src/main</arg>
+              <arg>-Acodetrans.config=${basedir}/codetrans-config.json</arg>
             </compilerArgs>
           </configuration>
         </plugin>
@@ -50,18 +58,16 @@
     </pluginManagement>
   </build>
 
-  <repositories>
-    <repository>
-      <id>oss.snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
+  <profiles>
+    <profile>
+      <id>staging</id>
+      <repositories>
+        <repository>
+          <id>staging</id>
+          <url>https://oss.sonatype.org/content/repositories/iovertx-2993</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
 
 </project>

@@ -19,6 +19,13 @@ For more info please refer to http://vertx.io/docs/
 === Usage from Ceylon
 
 ----
+From the "ceylon" directory. Only once.
+
+> ceylon compile examples.utils
+Note: Created module examples.utils/1.0.0
+----
+
+----
 > ceylon compile examples.core.http.simple.server
 Note: Created module examples.core.http.simple.server/1.0.0
 
@@ -42,9 +49,15 @@ shared void run() {
 
 === Usage from Vert.x
 
-Download Vert.x 3.2 SNAPSHOT : https://vertx.ci.cloudbees.com/view/vert.x-3/job/vert.x3-stack/ws/stack-dist/target/ , add $VERTX_HOME/bin to your path
+Download Vert.x from http://vertx.io/download, add $VERTX_HOME/bin to your path. Then edit the `vertx-stack.json` and set the `included` boolean to `true` for the `vertx-lang-ceylon` dependency. Ceylon support is not included by default as it breaks the on-demand Java compilation. Once edited, launch:
 
-Run a Ceylon Verticle from Vert.x
+----
+vertx resolve --dir=lib
+----
+
+It will download vertx-lang-ceylon and its dependencies.
+
+Them run a Ceylon Verticle from Vert.x as follows:
 
 ----
 > vertx run ceylon:source/examples/core/http/simple/server
